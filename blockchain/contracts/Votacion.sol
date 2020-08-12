@@ -9,10 +9,14 @@ contract Votacion{
         string url;
         string info;
     }
+    //numero de correos
+    uint public numero_correos;
     //numero de candidatos
     uint public numero_candidatos;
     //almacenamiento direcciones de los votantes
     mapping(address => bool) public votantes;
+    //almacenamiento correos institucionales
+    mapping(uint => string) public correos;
     //almacenamiento de candidatos
     mapping(uint => candidato) public candidatos;
     //Inicializa los candidatos
@@ -34,10 +38,10 @@ contract Votacion{
     );
     function votar (uint _idCandidato) public {
         //verifica 1 voto por cuenta
-        require(!votantes[msg.sender]);
+        require(!votantes[msg.sender],"Esa direccion de cuenta ya realizo el voto");
 
         //verifica candidato sea valido
-        require(_idCandidato > 0 && _idCandidato <= numero_candidatos);
+        require(_idCandidato > 0 && _idCandidato <= numero_candidatos,"candidato no valido");
 
         // record that voter has voted
         votantes[msg.sender] = true;
@@ -48,6 +52,14 @@ contract Votacion{
         // trigger voted event
         emit votoEvent(_idCandidato);
     }
-
+    function solicitudKey (string memory _correo) public {
+        for(uint i=1;i<=numero_correos;i++){
+            if(keccak256(bytes(correos[i])) == keccak256(bytes(_correo))){
+                revert("Este correo ya existe");
+            }        
+        }
+        numero_correos++;
+        correos[numero_correos]=_correo;
+    }
 
 }
