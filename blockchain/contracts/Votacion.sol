@@ -14,7 +14,8 @@ contract Votacion{
     //numero de candidatos
     uint public numero_candidatos;
     //almacenamiento direcciones de los votantes
-    mapping(address => bool) public votantes;
+    //mapping(address => bool) public votantes;
+    mapping(uint => string) public tokens;
     //almacenamiento correos institucionales
     mapping(uint => string) public correos;
     //almacenamiento de candidatos
@@ -52,10 +53,13 @@ contract Votacion{
         // trigger voted event
         emit votoEvent(_idCandidato);
     }
-    function solicitudKey (string memory _correo) public {
+    function solicitudKey (string memory _correo, string memory _token) public {
         for(uint i=1;i<=numero_correos;i++){
             if(keccak256(bytes(correos[i])) == keccak256(bytes(_correo))){
                 revert("Este correo ya existe");
+            }
+            if(keccak256(bytes(tokens[i])) == keccak256(bytes(_token))){
+                revert("Este token ya existe");
             }        
         }
         numero_correos++;

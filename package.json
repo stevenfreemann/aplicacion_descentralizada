@@ -1,0 +1,31 @@
+{
+  "name": "dapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "server": "nodemon index.js",
+    "client": "npm run start --prefix client",
+    "dev": "npm run server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevenfreemann/aplicacion_descentralizada.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stevenfreemann/aplicacion_descentralizada/issues"
+  },
+  "homepage": "https://github.com/stevenfreemann/aplicacion_descentralizada#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "concurrently": "^5.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "nodemailer": "^6.4.11",
+    "nodemon": "^2.0.4"
+  }
+}
