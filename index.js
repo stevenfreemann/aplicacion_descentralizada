@@ -4,12 +4,49 @@ const nodemailer = require("nodemailer");
 const cors = require('cors');
 const { response } = require("express");
 const app = express();
+var generator = require('generate-password');
+const fs = require('fs');
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 var i =0;
+
+app.post("/api/credenciales/", (req,res)=>{
+    const user="adminUdec";
+    const pass="admin1234.*";
+    if(req.body.usuario===user && req.body.password===pass){
+        var password = generator.generate({
+            length: 20,
+            numbers: true
+          });
+          fs.writeFile('encoding.txt', password, function(err){
+              if(err){
+                  return console.log("Txt: ", err)
+              }
+          })
+        return res.end(password);
+    }else{
+        return res.sendStatus(401);
+    }
+});
+app.get("/api/validacion/:pass", (req,res)=>{
+    fs.readFile('encoding.txt', 'utf8', function(err, data) {
+        if (err) {
+            throw err;
+        }
+        if(data===req.params.pass){
+            return res.sendStatus(200);
+        }else{
+            return res.sendStatus(401);
+        }
+    });    
+   
+   /* 
+*/
+});
 app.post("/api/form/", (req,res)=>{
+    console.log(req);
     nodemailer.createTestAccount((err,account)=>{
         const htmlEmail = `
         <h3> E-VOTING </h3>
@@ -29,14 +66,14 @@ app.post("/api/form/", (req,res)=>{
           });
         let mailOptions = {
             from: "wilsonxXxrodri@gmail.com",
-            to: req.body.correo.correo,
+            to: req.body.correo,
             replyTo: "wilsonxXxrodri@gmail.com",
             subject: "Sistema de votacion Blockchain",
             html: htmlEmail
         };
         transporter.sendMail(mailOptions,(err,info)=>{
             if(err){
-                return res.end(err);
+                return res.end("error es"+err);
             }else{
                 return res.end('It worked!');
             }           

@@ -1,5 +1,4 @@
 pragma solidity ^0.5.16;
-
 contract Votacion{
     //objeto Candidato
     struct candidato{
@@ -13,9 +12,7 @@ contract Votacion{
     uint public numero_correos;
     //numero de candidatos
     uint public numero_candidatos;
-    //almacenamiento direcciones de los votantes
-    //mapping(address => bool) public votantes;
-    mapping(uint => string) public tokens;
+    mapping(string => bool) public tokens;
     //almacenamiento correos institucionales
     mapping(uint => string) public correos;
     //almacenamiento de candidatos
@@ -29,28 +26,18 @@ contract Votacion{
         "images/luis_bedolla.jpg",
         "Estudiante de Administracion De Empresas-decimo semestre ext Facatativa-24 años");
     }
-    function agregarCandidato (string memory _nombre,string memory _url,string memory _info) private {
+    function agregarCandidato (string memory _nombre,string memory _url,string memory _info) public {
         numero_candidatos++;
         candidatos[numero_candidatos] = candidato(numero_candidatos, _nombre, 0,_url,_info);
     }
-
     event votoEvent (
         uint indexed _idCandidato
     );
-    function votar (uint _idCandidato) public {
-        //verifica 1 voto por cuenta
-        require(!votantes[msg.sender],"Esa direccion de cuenta ya realizo el voto");
-
-        //verifica candidato sea valido
+    function votar (uint _idCandidato, string memory _token) public {
+        require(tokens[_token],"Token no valido");
         require(_idCandidato > 0 && _idCandidato <= numero_candidatos,"candidato no valido");
-
-        // record that voter has voted
-        votantes[msg.sender] = true;
-
-        // update candidate vote Count
+        tokens[_token] = false;
         candidatos[_idCandidato].cantidad_votos ++;
-
-        // trigger voted event
         emit votoEvent(_idCandidato);
     }
     function solicitudKey (string memory _correo, string memory _token) public {
@@ -58,12 +45,9 @@ contract Votacion{
             if(keccak256(bytes(correos[i])) == keccak256(bytes(_correo))){
                 revert("Este correo ya existe");
             }
-            if(keccak256(bytes(tokens[i])) == keccak256(bytes(_token))){
-                revert("Este token ya existe");
-            }        
         }
         numero_correos++;
         correos[numero_correos]=_correo;
+        tokens[_token] = true;
     }
-
 }

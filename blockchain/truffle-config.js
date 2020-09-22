@@ -9,6 +9,8 @@ module.exports = {
     port: 8545,            // Standard Ethereum port (default: none)
     network_id: 5777,       // Any network (default: none)
     }
-  }
-}
+  },
+  solc: { optimizer: { enabled: true, runs: 200 } }
+};
+
 
