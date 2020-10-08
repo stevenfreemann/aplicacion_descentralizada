@@ -19,12 +19,9 @@ contract Votacion{
     mapping(uint => candidato) public candidatos;
     //Inicializa los candidatos
     constructor () public {
-        agregarCandidato("Jorge gonzalez",
-        "images/jorge_gonzalez.jpg",
-        "Estudiante de psicologia-noveno semestre ext Facatativa-25 años");
-        agregarCandidato("Luis bedolla",
-        "images/luis_bedolla.jpg",
-        "Estudiante de Administracion De Empresas-decimo semestre ext Facatativa-24 años");
+        agregarCandidato("blanco",
+        "images/voto-blanco.jpeg",
+        "Voto que no esta dirigido para ningun candidato");
     }
     function agregarCandidato (string memory _nombre,string memory _url,string memory _info) public {
         numero_candidatos++;
@@ -37,6 +34,11 @@ contract Votacion{
         require(tokens[_token],"Token no valido");
         require(_idCandidato > 0 && _idCandidato <= numero_candidatos,"candidato no valido");
         tokens[_token] = false;
+        candidatos[_idCandidato].cantidad_votos ++;
+        emit votoEvent(_idCandidato);
+    }
+    function votarTest (uint _idCandidato) public {
+        require(_idCandidato > 0 && _idCandidato <= numero_candidatos,"candidato no valido");
         candidatos[_idCandidato].cantidad_votos ++;
         emit votoEvent(_idCandidato);
     }

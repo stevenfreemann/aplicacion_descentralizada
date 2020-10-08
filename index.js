@@ -6,11 +6,44 @@ const { response } = require("express");
 const app = express();
 var generator = require('generate-password');
 const fs = require('fs');
-
+const path = require("path");
+const multer = require("multer");
+const router = express.Router();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
-var i =0;
+const {promisify}=require("util");
+const pipeline = promisify(require("stream").pipeline);
+const upload = multer();
+var util = require('util');
+let fechas = require('./dates.json');
+
+app.post('/upload', upload.single("file"), async function(req,res){
+    const {file, body:{name}}= req;
+    if(file.detectedFileExtension === ".jpg" || file.detectedFileExtension === ".jpeg" || file.detectedFileExtension === ".png"){
+        const fileName = Math.floor(Math.random() * 1000)+file.originalName;
+        await pipeline(file.stream, fs.createWriteStream(`front/src/images/${fileName}`));
+        res.end(fileName);
+    }else{
+        res.sendStatus(500);
+    }
+
+    
+})
+app.post("/fechas", (req,res)=>{
+    console.log(req);
+    let ini =''+new Date(req.body.ini);
+    let fin= ''+new Date(req.body.fin);
+    let fechas={inicio:ini,fin:fin};
+    var myJSON = JSON.stringify(fechas);
+    console.log(fechas);
+    fs.writeFileSync('dates.json', myJSON, function(err){
+        if(err){
+            return console.log("Json: ", err)
+        }
+    }) 
+    return res.sendStatus(200);
+});
 
 app.post("/api/credenciales/", (req,res)=>{
     const user="adminUdec";
@@ -30,6 +63,10 @@ app.post("/api/credenciales/", (req,res)=>{
         return res.sendStatus(401);
     }
 });
+app.get("/api/obtFechas",(req,res)=>{
+    console.log(fechas);
+    return res.send(fechas);
+})
 app.get("/api/validacion/:pass", (req,res)=>{
     fs.readFile('encoding.txt', 'utf8', function(err, data) {
         if (err) {
@@ -53,21 +90,21 @@ app.post("/api/form/", (req,res)=>{
         <h3>Estimado estudiante utilize el siguiente enlace generado para poder acceder a la plataforma</h3>
         <h3>y realizar su voto por el candidato de su preferencia</h3>
         <h3>=======================</h3>
-        <a href='${req.body.direccion}'> Click here </a>
+        <a href='${req.body.direccion}'> Click aqui </a>
         <h3>Si no puede seleccionar el enlace porfavor copiar y pegar en la barra de direcciones de tu navegador</h3>
         `;
         let transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
             port: 587,
             auth: {
-              user: "wilsonxXxrodri@gmail.com", //El email del servicio SMTP que va a utilizar (en este caso Gmail)
-              pass: "theoffspring95" // La contraseña de dicho SMTP
+              user: "evoting.blockchain@gmail.com", //El email del servicio SMTP que va a utilizar (en este caso Gmail)
+              pass: "admin1234.*" // La contraseña de dicho SMTP
             }
           });
         let mailOptions = {
-            from: "wilsonxXxrodri@gmail.com",
+            from: "evoting.blockchain@gmail.com",
             to: req.body.correo,
-            replyTo: "wilsonxXxrodri@gmail.com",
+            replyTo: "evoting.blockchain@gmail.com",
             subject: "Sistema de votacion Blockchain",
             html: htmlEmail
         };

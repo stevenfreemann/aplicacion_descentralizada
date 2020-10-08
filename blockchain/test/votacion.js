@@ -3,49 +3,54 @@ var votacion = artifacts.require("./Votacion.sol");
 contract("votacion", function(accounts) {
   var instancia_contrato;
 
-  it("Inicializar con dos candidatos", function() {
+  it("Inicializar voto en blanco", function() {
     return votacion.deployed().then(function(instance) {
       return instance.numero_candidatos();
     }).then(function(count) {
-      assert.equal(count, 2);
+      assert.equal(count, 1);
     });
   });
 
-  it("Inicializar los candidatos con los valores correctos", function() {
+  it("Inicializar voto en blanco con los valores correctos", function() {
     return votacion.deployed().then(function(instance) {
       instancia_contrato = instance;
       return instancia_contrato.candidatos(1);
     }).then(function(candidato) {
-      assert.equal(candidato[0], 1, "contains the correct id");
-      assert.equal(candidato[1], "Candidate 1", "contains the correct name");
-      assert.equal(candidato[2], 0, "contains the correct votars count");
-      return instancia_contrato.candidatos(2);
-    }).then(function(candidato) {
-      assert.equal(candidato[0], 2, "contains the correct id");
-      assert.equal(candidato[1], "Candidate 2", "contains the correct name");
-      assert.equal(candidato[2], 0, "contains the correct votars count");
-    });
+      assert.equal(candidato[0], 1, "Id correcto");
+      assert.equal(candidato[1], "-", "Nombre Correcto");
+      assert.equal(candidato[2], 0, "Votos correctos");
+      assert.equal(candidato[3], "images/voto-blanco.jpeg", "Imagen correcta");
+      assert.equal(candidato[4], "-", "Informacion correcta");
   });
-
-  it("Funcion de votar funcionando correctamente", function() {
+});
+for(let iteraciones=1;iteraciones<=51;iteraciones++){
+  it("voto # "+iteraciones, function() {
     return votacion.deployed().then(function(instance) {
       instancia_contrato = instance;
       candidato_id = 1;
-      return instancia_contrato.votar(candidato_id, { from: accounts[0] });
+      return instancia_contrato.votarTest(candidato_id, { from: accounts[1] });
     }).then(function(receipt) {
-      assert.equal(receipt.logs.length, 1, "an event was triggered");
+      assert.equal(receipt.logs.length, 1, "Evento funcionando");
       assert.equal(receipt.logs[0].event, "votoEvent", "Ingreso al evento correcto");
-      assert.equal(receipt.logs[0].args._idCandidato.toNumber(), candidato_id, "the candidato id is correct");
-      return instancia_contrato.votantes(accounts[0]);
-    }).then(function(votar) {
-      assert(votar, "the votarr was marked as votard");
+      assert.equal(receipt.logs[0].args._idCandidato.toNumber(), candidato_id, "El id del candidato es correcto");
+      return true;
+    }).then(function(votarTest) {
+      assert(votarTest, "Votacion");
       return instancia_contrato.candidatos(candidato_id);
+    });
+  });
+}
+  
+  it("comparar cantidad votos", function() {
+    return votacion.deployed().then(function(instance) {
+      return instance.candidatos(1);
     }).then(function(candidato) {
       var cantidad_votos = candidato[2];
-      assert.equal(cantidad_votos, 1, "increments the candidato's votar count");
-    })
+      assert.equal(cantidad_votos,50 );
+    });
   });
 
+/*
   it("Capturar exepcion para candidatos no validos", function() {
     return votacion.deployed().then(function(instance) {
       instancia_contrato = instance;
@@ -86,4 +91,5 @@ contract("votacion", function(accounts) {
       assert.equal(cantidad_votos, 1, "candidato 2 did not receive any votars");
     });
   });
+  */
 });
